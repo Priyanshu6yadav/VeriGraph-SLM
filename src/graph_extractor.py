@@ -98,3 +98,26 @@ def extract_triples(text):
         print("Could not parse LLM response:")
         print(response_text)
         return []
+
+
+def extract_triples_from_chunk(chunk):
+
+    # Extract relationships from chunk text
+    triples = extract_triples(chunk["text"])
+
+    # Attach document evidence to each relationship
+    evidence_triples = []
+
+    for triple in triples:
+
+        triple_with_evidence = {
+            **triple,
+            "source": chunk["source"],
+            "page_number": chunk["page_number"],
+            "chunk_id": chunk["chunk_id"],
+            "evidence_text": chunk["text"]
+        }
+
+        evidence_triples.append(triple_with_evidence)
+
+    return evidence_triples
