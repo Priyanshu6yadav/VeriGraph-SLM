@@ -18,6 +18,13 @@ def create_vector_store(chunks: list):
 
     print("\n--- VECTOR STORE DEBUGGING ---")
     print("Input chunks:", len(chunks))
+    print("\nChecking input chunk metadata:")
+    
+    for chunk in chunks[:3]:
+        print({
+            "chunk_id": chunk.get("chunk_id"),
+            "source": chunk.get("source", "MISSING")
+        })
     embeddings = create_embedding_model()
     documents = []
     for chunk in chunks:

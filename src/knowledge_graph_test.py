@@ -2,6 +2,7 @@
 from ingestion_test import process_pdf
 from graph_extractor import extract_triples_from_chunk
 from graph_storage import save_graph
+from graph_visualizer import visualize_graph
 
 from graph_builder import (
     create_graph,
@@ -40,6 +41,7 @@ for index, chunk in enumerate(chunks):
 # 4. Normalize and insert triples
 graph = add_triples(graph, all_triples)
 save_graph(graph)
+visualize_graph(graph)
 
 # 5. Display statistics
 print("\nKnowledge Graph Statistics:")

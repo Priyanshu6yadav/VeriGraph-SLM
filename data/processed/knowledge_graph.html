@@ -1,0 +1,635 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 780px;
+                 background-color: #101827;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Transformer", "label": "Transformer", "shape": "dot", "size": 63, "title": "Entity: Transformer\nConnections: 15"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Attention Mechanism", "label": "Attention Mechanism", "shape": "dot", "size": 42, "title": "Entity: Attention Mechanism\nConnections: 8"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "English constituency parsing", "label": "English constituency parsing", "shape": "dot", "size": 21, "title": "Entity: English constituency parsing\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "tensor2tensor", "label": "tensor2tensor", "shape": "dot", "size": 21, "title": "Entity: tensor2tensor\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "earlier codebase", "label": "earlier codebase", "shape": "dot", "size": 21, "title": "Entity: earlier codebase\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Recurrent neural networks", "label": "Recurrent neural networks", "shape": "dot", "size": 21, "title": "Entity: Recurrent neural networks\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Recurrent models", "label": "Recurrent models", "shape": "dot", "size": 21, "title": "Entity: Recurrent models\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "sequence of hidden states ht", "label": "sequence of hidden states ht", "shape": "dot", "size": 21, "title": "Entity: sequence of hidden states ht\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "ConvS2S", "label": "ConvS2S", "shape": "dot", "size": 21, "title": "Entity: ConvS2S\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Convolutional Neural Networks", "label": "Convolutional Neural Networks", "shape": "dot", "size": 24, "title": "Entity: Convolutional Neural Networks\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "ByteNet", "label": "ByteNet", "shape": "dot", "size": 21, "title": "Entity: ByteNet\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Multi-Head Attention", "label": "Multi-Head Attention", "shape": "dot", "size": 24, "title": "Entity: Multi-Head Attention\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "model", "label": "model", "shape": "dot", "size": 21, "title": "Entity: model\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Multi-head self-attention mechanism", "label": "Multi-head self-attention mechanism", "shape": "dot", "size": 21, "title": "Entity: Multi-head self-attention mechanism\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Position-wise feed-forward network", "label": "Position-wise feed-forward network", "shape": "dot", "size": 21, "title": "Entity: Position-wise feed-forward network\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Attention", "label": "Attention", "shape": "dot", "size": 24, "title": "Entity: Attention\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "query and a set of key-values", "label": "query and a set of key-values", "shape": "dot", "size": 21, "title": "Entity: query and a set of key-values\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Scaled Dot-Product Attention", "label": "Scaled Dot-Product Attention", "shape": "dot", "size": 24, "title": "Entity: Scaled Dot-Product Attention\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Matrix Operations", "label": "Matrix Operations", "shape": "dot", "size": 21, "title": "Entity: Matrix Operations\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "dot-product attention", "label": "dot-product attention", "shape": "dot", "size": 21, "title": "Entity: dot-product attention\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "our algorithm", "label": "our algorithm", "shape": "dot", "size": 24, "title": "Entity: our algorithm\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "1/\u221adk", "label": "1/\u221adk", "shape": "dot", "size": 21, "title": "Entity: 1/\u221adk\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "additive attention", "label": "additive attention", "shape": "dot", "size": 21, "title": "Entity: additive attention\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "using a feed-forward network with a single hidden layer", "label": "using a feed-forward network with a single hidden layer", "shape": "dot", "size": 21, "title": "Entity: using a feed-forward network with a single hidden layer\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "MultiHead", "label": "MultiHead", "shape": "dot", "size": 21, "title": "Entity: MultiHead\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "representation subspaces at different positions", "label": "representation subspaces at different positions", "shape": "dot", "size": 21, "title": "Entity: representation subspaces at different positions\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Position-wise Feed-Forward Networks", "label": "Position-wise Feed-Forward Networks", "shape": "dot", "size": 21, "title": "Entity: Position-wise Feed-Forward Networks\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Self-Attention", "label": "Self-Attention", "shape": "dot", "size": 21, "title": "Entity: Self-Attention\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Positional Encoding", "label": "Positional Encoding", "shape": "dot", "size": 24, "title": "Entity: Positional Encoding\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Sinusoid", "label": "Sinusoid", "shape": "dot", "size": 21, "title": "Entity: Sinusoid\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "self-attention layers", "label": "self-attention layers", "shape": "dot", "size": 21, "title": "Entity: self-attention layers\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "recurrent and convolutional layers", "label": "recurrent and convolutional layers", "shape": "dot", "size": 21, "title": "Entity: recurrent and convolutional layers\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "self-attention layer", "label": "self-attention layer", "shape": "dot", "size": 21, "title": "Entity: self-attention layer\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "all positions", "label": "all positions", "shape": "dot", "size": 21, "title": "Entity: all positions\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "separable convolutions", "label": "separable convolutions", "shape": "dot", "size": 24, "title": "Entity: separable convolutions\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "complexity", "label": "complexity", "shape": "dot", "size": 21, "title": "Entity: complexity\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "self-attention layer + point-wise feed-forward layer", "label": "self-attention layer + point-wise feed-forward layer", "shape": "dot", "size": 21, "title": "Entity: self-attention layer + point-wise feed-forward layer\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "byte-pair encoding", "label": "byte-pair encoding", "shape": "dot", "size": 21, "title": "Entity: byte-pair encoding\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "sentence pairs", "label": "sentence pairs", "shape": "dot", "size": 21, "title": "Entity: sentence pairs\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Adam optimizer", "label": "Adam optimizer", "shape": "dot", "size": 21, "title": "Entity: Adam optimizer\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Optimization", "label": "Optimization", "shape": "dot", "size": 21, "title": "Entity: Optimization\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "better BLEU scores", "label": "better BLEU scores", "shape": "dot", "size": 21, "title": "Entity: better BLEU scores\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "English-to-German and English-to-French newstest2014 tests", "label": "English-to-German and English-to-French newstest2014 tests", "shape": "dot", "size": 21, "title": "Entity: English-to-German and English-to-French newstest2014 tests\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "a fraction of the training cost", "label": "a fraction of the training cost", "shape": "dot", "size": 21, "title": "Entity: a fraction of the training cost\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Transformer (big)", "label": "Transformer (big)", "shape": "dot", "size": 21, "title": "Entity: Transformer (big)\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "dropout rate", "label": "dropout rate", "shape": "dot", "size": 21, "title": "Entity: dropout rate\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Model", "label": "Model", "shape": "dot", "size": 21, "title": "Entity: Model\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "floating point operations", "label": "floating point operations", "shape": "dot", "size": 21, "title": "Entity: floating point operations\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "attention mechanism", "label": "attention mechanism", "shape": "dot", "size": 21, "title": "Entity: attention mechanism\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Berkeley-Parse [29]", "label": "Berkeley-Parse [29]", "shape": "dot", "size": 21, "title": "Entity: Berkeley-Parse [29]\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Law", "label": "Law", "shape": "dot", "size": 21, "title": "Entity: Law\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Application", "label": "Application", "shape": "dot", "size": 24, "title": "Entity: Application\nConnections: 2"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "Justness", "label": "Justness", "shape": "dot", "size": 21, "title": "Entity: Justness\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "attention heads", "label": "attention heads", "shape": "dot", "size": 21, "title": "Entity: attention heads\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "structure of the sentence", "label": "structure of the sentence", "shape": "dot", "size": 21, "title": "Entity: structure of the sentence\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "encoder self-attention", "label": "encoder self-attention", "shape": "dot", "size": 21, "title": "Entity: encoder self-attention\nConnections: 1"}, {"color": {"background": "#3B82F6", "border": "#BFDBFE", "highlight": {"background": "#F59E0B", "border": "#FDE68A"}}, "font": {"color": "#F8FAFC"}, "id": "5 of 6", "label": "5 of 6", "shape": "dot", "size": 21, "title": "Entity: 5 of 6\nConnections: 1"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_1\", \"evidence_text\": \"oogle Research\\nllion@google.com\\nAidan N. Gomez\u2217\u2020\\nUniversity of Toronto\\naidan@cs.toronto.edu\\n\u0141ukasz Kaiser\u2217\\nGoogle Brain\\nlukaszkaiser@google.com\\nIllia Polosukhin\u2217\u2021\\nillia.polosukhin@gmail.com\\nAbstract\\nThe dominant sequence transduction models are based on complex recurrent or\\nconvolutional neural networks that include an encoder and a decoder. The best\\nperforming models also connect the encoder and decoder through an attention\\nmechanism. We propose a new simple network architecture, the Transforme\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_2\", \"evidence_text\": \"decoder through an attention\\nmechanism. We propose a new simple network architecture, the Transformer,\\nbased solely on attention mechanisms, dispensing with recurrence and convolutions\\nentirely. Experiments on two machine translation tasks show these models to\\nbe superior in quality while being more parallelizable and requiring significantly\\nless time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-\\nto-German translation task, improving over the existing best results, including\\nen\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_4\", \"evidence_text\": \"rmer generalizes well to\\nother tasks by applying it successfully to English constituency parsing both with\\nlarge and limited training data.\\n\u2217Equal contribution. Listing order is random. Jakob proposed replacing RNNs with self-attention and started\\nthe effort to evaluate this idea. Ashish, with Illia, designed and implemented the first Transformer models and\\nhas been crucially involved in every aspect of this work. Noam proposed scaled dot-product attention, multi-head\\nattention and the parameter\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_7\", \"evidence_text\": \"g Beach, CA, USA.\\narXiv:1706.03762v7 [cs.CL] 2 Aug 2023\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_2\", \"evidence_text\": \"s, which becomes critical at longer\\nsequence lengths, as memory constraints limit batching across examples. Recent work has achieved\\nsignificant improvements in computational efficiency through factorization tricks [21] and conditional\\ncomputation [32], while also improving model performance in case of the latter. The fundamental\\nconstraint of sequential computation, however, remains.\\nAttention mechanisms have become an integral part of compelling sequence modeling and transduc-\\ntion models in v\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_3\", \"evidence_text\": \"chanisms have become an integral part of compelling sequence modeling and transduc-\\ntion models in various tasks, allowing modeling of dependencies without regard to their distance in\\nthe input or output sequences [2, 19]. In all but a few cases [27], however, such attention mechanisms\\nare used in conjunction with a recurrent network.\\nIn this work we propose the Transformer, a model architecture eschewing recurrence and instead\\nrelying entirely on an attention mechanism to draw global dependenci\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_4\", \"evidence_text\": \"schewing recurrence and instead\\nrelying entirely on an attention mechanism to draw global dependencies between input and output.\\nThe Transformer allows for significantly more parallelization and can reach a new state of the art in\\ntranslation quality after being trained for as little as twelve hours on eight P100 GPUs.\\n2\\nBackground\\nThe goal of reducing sequential computation also forms the foundation of the Extended Neural GPU\\n[16], ByteNet [18] and ConvS2S [9], all of which use convolutional ne\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_7\", \"evidence_text\": \"ttention is an attention mechanism relating different positions\\nof a single sequence in order to compute a representation of the sequence. Self-attention has been\\nused successfully in a variety of tasks including reading comprehension, abstractive summarization,\\ntextual entailment and learning task-independent sentence representations [4, 27, 28, 22].\\nEnd-to-end memory networks are based on a recurrent attention mechanism instead of sequence-\\naligned recurrence and have been shown to perform wel\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_8\", \"evidence_text\": \"rrent attention mechanism instead of sequence-\\naligned recurrence and have been shown to perform well on simple-language question answering and\\nlanguage modeling tasks [34].\\nTo the best of our knowledge, however, the Transformer is the first transduction model relying\\nentirely on self-attention to compute representations of its input and output without using sequence-\\naligned RNNs or convolution. In the following sections, we will describe the Transformer, motivate\\nself-attention and discuss its\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_9\", \"evidence_text\": \"In the following sections, we will describe the Transformer, motivate\\nself-attention and discuss its advantages over models such as [17, 18] and [9].\\n3\\nModel Architecture\\nMost competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35].\\nHere, the encoder maps an input sequence of symbol representations (x1, ..., xn) to a sequence\\nof continuous representations z = (z1, ..., zn). Given z, the decoder then generates an output\\nsequence (y1, ..., ym) of symbols one el\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_0\", \"evidence_text\": \"Figure 1: The Transformer - model architecture.\\nThe Transformer follows this overall architecture using stacked self-attention and point-wise, fully\\nconnected layers for both the encoder and decoder, shown in the left and right halves of Figure 1,\\nrespectively.\\n3.1\\nEncoder and Decoder Stacks\\nEncoder:\\nThe encoder is composed of a stack of N = 6 identical layers. Each layer has two\\nsub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, position-\\nwise fully conn\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_2\", \"evidence_text\": \"idual connections, all sub-layers in the model, as well as the embedding\\nlayers, produce outputs of dimension dmodel = 512.\\nDecoder:\\nThe decoder is also composed of a stack of N = 6 identical layers. In addition to the two\\nsub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head\\nattention over the output of the encoder stack. Similar to the encoder, we employ residual connections\\naround each of the sub-layers, followed by layer normalization. We also mod\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_3\", \"evidence_text\": \"a feed-forward network with\\na single hidden layer. While the two are similar in theoretical complexity, dot-product attention is\\nmuch faster and more space-efficient in practice, since it can be implemented using highly optimized\\nmatrix multiplication code.\\nWhile for small values of dk the two mechanisms perform similarly, additive attention outperforms\\ndot product attention without scaling for larger values of dk [3]. We suspect that for large values of\\ndk, the dot products grow large in magnit\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_5\", \"evidence_text\": \"al to linearly project the queries, keys and values h times with different, learned\\nlinear projections to dk, dk and dv dimensions, respectively. On each of these projected versions of\\nqueries, keys and values we then perform the attention function in parallel, yielding dv-dimensional\\n4To illustrate why the dot products get large, assume that the components of q and k are independent random\\nvariables with mean 0 and variance 1. Then their dot product, q \u00b7 k = Pdk\\ni=1 qiki, has mean 0 and varianc\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_3\", \"evidence_text\": \"ttention mechanisms in sequence-to-sequence models such as\\n[38, 2, 9].\\n\u2022 The encoder contains self-attention layers. In a self-attention layer all of the keys, values\\nand queries come from the same place, in this case, the output of the previous layer in the\\nencoder. Each position in the encoder can attend to all positions in the previous layer of the\\nencoder.\\n\u2022 Similarly, self-attention layers in the decoder allow each position in the decoder to attend to\\nall positions in the decoder up to and \"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_6\", \"evidence_text\": \"same across different positions, they use different parameters\\nfrom layer to layer. Another way of describing this is as two convolutions with kernel size 1.\\nThe dimensionality of input and output is dmodel = 512, and the inner-layer has dimensionality\\ndff = 2048.\\n3.4\\nEmbeddings and Softmax\\nSimilarly to other sequence transduction models, we use learned embeddings to convert the input\\ntokens and output tokens to vectors of dimension dmodel. We also use the usual learned linear transfor-\\nmation a\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_7\", \"evidence_text\": \"utput tokens to vectors of dimension dmodel. We also use the usual learned linear transfor-\\nmation and softmax function to convert the decoder output to predicted next-token probabilities. In\\nour model, we share the same weight matrix between the two embedding layers and the pre-softmax\\nlinear transformation, similar to [30]. In the embedding layers, we multiply those weights by \u221admodel.\\n5\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_4\", \"evidence_text\": \"r function of\\nPEpos.\\nWe also experimented with using learned positional embeddings [9] instead, and found that the two\\nversions produced nearly identical results (see Table 3 row (E)). We chose the sinusoidal version\\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\\nduring training.\\n4\\nWhy Self-Attention\\nIn this section we compare various aspects of self-attention layers to the recurrent and convolu-\\ntional layers commonly used for mapping one vari\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_8\", \"evidence_text\": \"tention layer connects all positions with a constant number of sequentially\\nexecuted operations, whereas a recurrent layer requires O(n) sequential operations. In terms of\\ncomputational complexity, self-attention layers are faster than recurrent layers when the sequence\\n6\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_0\", \"evidence_text\": \"length n is smaller than the representation dimensionality d, which is most often the case with\\nsentence representations used by state-of-the-art models in machine translations, such as word-piece\\n[38] and byte-pair [31] representations. To improve computational performance for tasks involving\\nvery long sequences, self-attention could be restricted to considering only a neighborhood of size r in\\nthe input sequence centered around the respective output position. This would increase the maximum\\npa\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_3\", \"evidence_text\": \"e combination of a self-attention layer and a point-wise feed-forward layer,\\nthe approach we take in our model.\\nAs side benefit, self-attention could yield more interpretable models. We inspect attention distributions\\nfrom our models and present and discuss examples in the appendix. Not only do individual attention\\nheads clearly learn to perform different tasks, many appear to exhibit behavior related to the syntactic\\nand semantic structure of the sentences.\\n5\\nTraining\\nThis section describes the\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_5\", \"evidence_text\": \"ish-French, we used the significantly larger WMT\\n2014 English-French dataset consisting of 36M sentences and split tokens into a 32000 word-piece\\nvocabulary [38]. Sentence pairs were batched together by approximate sequence length. Each training\\nbatch contained a set of sentence pairs containing approximately 25000 source tokens and 25000\\ntarget tokens.\\n5.2\\nHardware and Schedule\\nWe trained our models on one machine with 8 NVIDIA P100 GPUs. For our base models using\\nthe hyperparameters described \"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_8\", \"evidence_text\": \" step number. We used\\nwarmup_steps = 4000.\\n5.4\\nRegularization\\nWe employ three types of regularization during training:\\n7\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_1\", \"evidence_text\": \"0\\nMoE [32]\\n26.03\\n40.56\\n2.0 \u00b7 1019\\n1.2 \u00b7 1020\\nDeep-Att + PosUnk Ensemble [39]\\n40.4\\n8.0 \u00b7 1020\\nGNMT + RL Ensemble [38]\\n26.30\\n41.16\\n1.8 \u00b7 1020\\n1.1 \u00b7 1021\\nConvS2S Ensemble [9]\\n26.36\\n41.29\\n7.7 \u00b7 1019\\n1.2 \u00b7 1021\\nTransformer (base model)\\n27.3\\n38.1\\n3.3 \u00b7 1018\\nTransformer (big)\\n28.4\\n41.8\\n2.3 \u00b7 1019\\nResidual Dropout\\nWe apply dropout [33] to the output of each sub-layer, before it is added to the\\nsub-layer input and normalized. In addition, we apply dropout to the sums of the embeddings and the\\npositional \"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_2\", \"evidence_text\": \"nput and normalized. In addition, we apply dropout to the sums of the embeddings and the\\npositional encodings in both the encoder and decoder stacks. For the base model, we use a rate of\\nPdrop = 0.1.\\nLabel Smoothing\\nDuring training, we employed label smoothing of value \u03f5ls = 0.1 [36]. This\\nhurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU score.\\n6\\nResults\\n6.1\\nMachine Translation\\nOn the WMT 2014 English-to-German translation task, the big transformer model (T\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_7\", \"evidence_text\": \" and an estimate of the sustained\\nsingle-precision floating-point capacity of each GPU 5.\\n6.2\\nModel Variations\\nTo evaluate the importance of different components of the Transformer, we varied our base model\\nin different ways, measuring the change in performance on English-to-German translation on the\\n5We used values of 2.8, 3.7, 6.0 and 9.5 TFLOPS for K80, K40, M40 and P100, respectively.\\n8\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 9, \"chunk_id\": \"page_9_chunk_0\", \"evidence_text\": \"Table 3: Variations on the Transformer architecture. Unlisted values are identical to those of the base\\nmodel. All metrics are on the English-to-German translation development set, newstest2013. Listed\\nperplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to\\nper-word perplexities.\\nN\\ndmodel\\ndff\\nh\\ndk\\ndv\\nPdrop\\n\u03f5ls\\ntrain\\nPPL\\nBLEU\\nparams\\nsteps\\n(dev)\\n(dev)\\n\u00d7106\\nbase\\n6\\n512\\n2048\\n8\\n64\\n64\\n0.1\\n0.1\\n100K\\n4.92\\n25.8\\n65\\n(A)\\n1\\n512\\n512\\n5.29\\n24.9\\n4\\n128\\n128\\n5.00\\n25.5\\n16\\n32\\n\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 9, \"chunk_id\": \"page_9_chunk_1\", \"evidence_text\": \"base\\n6\\n512\\n2048\\n8\\n64\\n64\\n0.1\\n0.1\\n100K\\n4.92\\n25.8\\n65\\n(A)\\n1\\n512\\n512\\n5.29\\n24.9\\n4\\n128\\n128\\n5.00\\n25.5\\n16\\n32\\n32\\n4.91\\n25.8\\n32\\n16\\n16\\n5.01\\n25.4\\n(B)\\n16\\n5.16\\n25.1\\n58\\n32\\n5.01\\n25.4\\n60\\n(C)\\n2\\n6.11\\n23.7\\n36\\n4\\n5.19\\n25.3\\n50\\n8\\n4.88\\n25.5\\n80\\n256\\n32\\n32\\n5.75\\n24.5\\n28\\n1024\\n128\\n128\\n4.66\\n26.0\\n168\\n1024\\n5.12\\n25.4\\n53\\n4096\\n4.75\\n26.2\\n90\\n(D)\\n0.0\\n5.77\\n24.6\\n0.2\\n4.95\\n25.5\\n0.0\\n4.67\\n25.3\\n0.2\\n5.47\\n25.7\\n(E)\\npositional embedding instead of sinusoids\\n4.92\\n25.7\\nbig\\n6\\n1024\\n4096\\n16\\n0.3\\n300K\\n4.33\\n26.4\\n213\\ndevelopment set, newstest2013. We used \"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 9, \"chunk_id\": \"page_9_chunk_7\", \"evidence_text\": \"ing rates and beam size on the Section 22 development set, all other parameters\\nremained unchanged from the English-to-German base translation model. During inference, we\\n9\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_0\", \"evidence_text\": \"Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23\\nof WSJ)\\nParser\\nTraining\\nWSJ 23 F1\\nVinyals \u0026 Kaiser el al. (2014) [37]\\nWSJ only, discriminative\\n88.3\\nPetrov et al. (2006) [29]\\nWSJ only, discriminative\\n90.4\\nZhu et al. (2013) [40]\\nWSJ only, discriminative\\n90.4\\nDyer et al. (2016) [8]\\nWSJ only, discriminative\\n91.7\\nTransformer (4 layers)\\nWSJ only, discriminative\\n91.3\\nZhu et al. (2013) [40]\\nsemi-supervised\\n91.3\\nHuang \u0026 Harper (2009) [14]\\nsemi-supervis\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_1\", \"evidence_text\": \"riminative\\n91.3\\nZhu et al. (2013) [40]\\nsemi-supervised\\n91.3\\nHuang \u0026 Harper (2009) [14]\\nsemi-supervised\\n91.3\\nMcClosky et al. (2006) [26]\\nsemi-supervised\\n92.1\\nVinyals \u0026 Kaiser el al. (2014) [37]\\nsemi-supervised\\n92.1\\nTransformer (4 layers)\\nsemi-supervised\\n92.7\\nLuong et al. (2015) [23]\\nmulti-task\\n93.0\\nDyer et al. (2016) [8]\\ngenerative\\n93.3\\nincreased the maximum output length to input length + 300. We used a beam size of 21 and \u03b1 = 0.3\\nfor both WSJ only and the semi-supervised setting.\\nOur results in\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_3\", \"evidence_text\": \"orms the Berkeley-\\nParser [29] even when training only on the WSJ training set of 40K sentences.\\n7\\nConclusion\\nIn this work, we presented the Transformer, the first sequence transduction model based entirely on\\nattention, replacing the recurrent layers most commonly used in encoder-decoder architectures with\\nmulti-headed self-attention.\\nFor translation tasks, the Transformer can be trained significantly faster than architectures based\\non recurrent or convolutional layers. On both WMT 2014 English\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_4\", \"evidence_text\": \"antly faster than architectures based\\non recurrent or convolutional layers. On both WMT 2014 English-to-German and WMT 2014\\nEnglish-to-French translation tasks, we achieve a new state of the art. In the former task our best\\nmodel outperforms even all previously reported ensembles.\\nWe are excited about the future of attention-based models and plan to apply them to other tasks. We\\nplan to extend the Transformer to problems involving input and output modalities other than text and\\nto investigate lo\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_5\", \"evidence_text\": \" Transformer to problems involving input and output modalities other than text and\\nto investigate local, restricted attention mechanisms to efficiently handle large inputs and outputs\\nsuch as images, audio and video. Making generation less sequential is another research goals of ours.\\nThe code we used to train and evaluate our models is available at https://github.com/\\ntensorflow/tensor2tensor.\\nAcknowledgements\\nWe are grateful to Nal Kalchbrenner and Stephan Gouws for their fruitful\\ncomments, co\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_7\", \"evidence_text\": \"473, 2014.\\n[3] Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural\\nmachine translation architectures. CoRR, abs/1703.03906, 2017.\\n[4] Jianpeng Cheng, Li Dong, and Mirella Lapata. Long short-term memory-networks for machine\\nreading. arXiv preprint arXiv:1601.06733, 2016.\\n10\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_0\", \"evidence_text\": \"[5] Kyunghyun Cho, Bart van Merrienboer, Caglar Gulcehre, Fethi Bougares, Holger Schwenk,\\nand Yoshua Bengio. Learning phrase representations using rnn encoder-decoder for statistical\\nmachine translation. CoRR, abs/1406.1078, 2014.\\n[6] Francois Chollet. Xception: Deep learning with depthwise separable convolutions. arXiv\\npreprint arXiv:1610.02357, 2016.\\n[7] Junyoung Chung, \u00c7aglar G\u00fcl\u00e7ehre, Kyunghyun Cho, and Yoshua Bengio. Empirical evaluation\\nof gated recurrent neural networks on sequence modeli\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_1\", \"evidence_text\": \"n Cho, and Yoshua Bengio. Empirical evaluation\\nof gated recurrent neural networks on sequence modeling. CoRR, abs/1412.3555, 2014.\\n[8] Chris Dyer, Adhiguna Kuncoro, Miguel Ballesteros, and Noah A. Smith. Recurrent neural\\nnetwork grammars. In Proc. of NAACL, 2016.\\n[9] Jonas Gehring, Michael Auli, David Grangier, Denis Yarats, and Yann N. Dauphin. Convolu-\\ntional sequence to sequence learning. arXiv preprint arXiv:1705.03122v2, 2017.\\n[10] Alex Graves.\\nGenerating sequences with recurrent neural net\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_2\", \"evidence_text\": \" preprint arXiv:1705.03122v2, 2017.\\n[10] Alex Graves.\\nGenerating sequences with recurrent neural networks.\\narXiv preprint\\narXiv:1308.0850, 2013.\\n[11] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for im-\\nage recognition. In Proceedings of the IEEE Conference on Computer Vision and Pattern\\nRecognition, pages 770\u2013778, 2016.\\n[12] Sepp Hochreiter, Yoshua Bengio, Paolo Frasconi, and J\u00fcrgen Schmidhuber. Gradient flow in\\nrecurrent nets: the difficulty of learning long-te\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_4\", \"evidence_text\": \"s in Natural\\nLanguage Processing, pages 832\u2013841. ACL, August 2009.\\n[15] Rafal Jozefowicz, Oriol Vinyals, Mike Schuster, Noam Shazeer, and Yonghui Wu. Exploring\\nthe limits of language modeling. arXiv preprint arXiv:1602.02410, 2016.\\n[16] \u0141ukasz Kaiser and Samy Bengio. Can active memory replace attention? In Advances in Neural\\nInformation Processing Systems, (NIPS), 2016.\\n[17] \u0141ukasz Kaiser and Ilya Sutskever. Neural GPUs learn algorithms. In International Conference\\non Learning Representations (I\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_5\", \"evidence_text\": \" Sutskever. Neural GPUs learn algorithms. In International Conference\\non Learning Representations (ICLR), 2016.\\n[18] Nal Kalchbrenner, Lasse Espeholt, Karen Simonyan, Aaron van den Oord, Alex Graves, and Ko-\\nray Kavukcuoglu. Neural machine translation in linear time. arXiv preprint arXiv:1610.10099v2,\\n2017.\\n[19] Yoon Kim, Carl Denton, Luong Hoang, and Alexander M. Rush. Structured attention networks.\\nIn International Conference on Learning Representations, 2017.\\n[20] Diederik Kingma and Jimmy Ba\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_7\", \"evidence_text\": \"red self-attentive sentence embedding. arXiv preprint\\narXiv:1703.03130, 2017.\\n[23] Minh-Thang Luong, Quoc V. Le, Ilya Sutskever, Oriol Vinyals, and Lukasz Kaiser. Multi-task\\nsequence to sequence learning. arXiv preprint arXiv:1511.06114, 2015.\\n[24] Minh-Thang Luong, Hieu Pham, and Christopher D Manning. Effective approaches to attention-\\nbased neural machine translation. arXiv preprint arXiv:1508.04025, 2015.\\n11\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 11, \"chunk_id\": \"page_11_chunk_8\", \"evidence_text\": \"04025, 2015.\\n11\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 12, \"chunk_id\": \"page_12_chunk_0\", \"evidence_text\": \"[25] Mitchell P Marcus, Mary Ann Marcinkiewicz, and Beatrice Santorini. Building a large annotated\\ncorpus of english: The penn treebank. Computational linguistics, 19(2):313\u2013330, 1993.\\n[26] David McClosky, Eugene Charniak, and Mark Johnson. Effective self-training for parsing. In\\nProceedings of the Human Language Technology Conference of the NAACL, Main Conference,\\npages 152\u2013159. ACL, June 2006.\\n[27] Ankur Parikh, Oscar T\u00e4ckstr\u00f6m, Dipanjan Das, and Jakob Uszkoreit. A decomposable attention\\nmodel\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 12, \"chunk_id\": \"page_12_chunk_1\", \"evidence_text\": \"27] Ankur Parikh, Oscar T\u00e4ckstr\u00f6m, Dipanjan Das, and Jakob Uszkoreit. A decomposable attention\\nmodel. In Empirical Methods in Natural Language Processing, 2016.\\n[28] Romain Paulus, Caiming Xiong, and Richard Socher. A deep reinforced model for abstractive\\nsummarization. arXiv preprint arXiv:1705.04304, 2017.\\n[29] Slav Petrov, Leon Barrett, Romain Thibaux, and Dan Klein. Learning accurate, compact,\\nand interpretable tree annotation. In Proceedings of the 21st International Conference on\\nComputati\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 12, \"chunk_id\": \"page_12_chunk_4\", \"evidence_text\": \"opout: a simple way to prevent neural networks from overfitting. Journal of Machine\\nLearning Research, 15(1):1929\u20131958, 2014.\\n[34] Sainbayar Sukhbaatar, Arthur Szlam, Jason Weston, and Rob Fergus. End-to-end memory\\nnetworks. In C. Cortes, N. D. Lawrence, D. D. Lee, M. Sugiyama, and R. Garnett, editors,\\nAdvances in Neural Information Processing Systems 28, pages 2440\u20132448. Curran Associates,\\nInc., 2015.\\n[35] Ilya Sutskever, Oriol Vinyals, and Quoc VV Le. Sequence to sequence learning with neural\\n\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 12, \"chunk_id\": \"page_12_chunk_5\", \"evidence_text\": \"2015.\\n[35] Ilya Sutskever, Oriol Vinyals, and Quoc VV Le. Sequence to sequence learning with neural\\nnetworks. In Advances in Neural Information Processing Systems, pages 3104\u20133112, 2014.\\n[36] Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, and Zbigniew Wojna.\\nRethinking the inception architecture for computer vision. CoRR, abs/1512.00567, 2015.\\n[37] Vinyals \u0026 Kaiser, Koo, Petrov, Sutskever, and Hinton. Grammar as a foreign language. In\\nAdvances in Neural Information Processi\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 12, \"chunk_id\": \"page_12_chunk_7\", \"evidence_text\": \" 2016.\\n[39] Jie Zhou, Ying Cao, Xuguang Wang, Peng Li, and Wei Xu. Deep recurrent models with\\nfast-forward connections for neural machine translation. CoRR, abs/1606.04199, 2016.\\n[40] Muhua Zhu, Yue Zhang, Wenliang Chen, Min Zhang, and Jingbo Zhu. Fast and accurate\\nshift-reduce constituent parsing. In Proceedings of the 51st Annual Meeting of the ACL (Volume\\n1: Long Papers), pages 434\u2013443. ACL, August 2013.\\n12\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 13, \"chunk_id\": \"page_13_chunk_0\", \"evidence_text\": \"Attention Visualizations\\nIt\\nis\\nin\\nthis\\nspirit\\nthat\\na\\nmajority\\nof\\nAmerican\\ngovernments\\nhave\\npassed\\nnew\\nlaws\\nsince\\n2009\\nmaking\\nthe\\nregistration\\nor\\nvoting\\nprocess\\nmore\\ndifficult\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\nIt\\nis\\nin\\nthis\\nspirit\\nthat\\na\\nmajority\\nof\\nAmerican\\ngovernments\\nhave\\npassed\\nnew\\nlaws\\nsince\\n2009\\nmaking\\nthe\\nregistration\\nor\\nvoting\\nprocess\\nmore\\ndifficult\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\n\u003cpad\u003e\\nFigure 3: An example of the attention mechanism following long-distance dependencies in\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 13, \"chunk_id\": \"page_13_chunk_1\", \"evidence_text\": \"\\n\u003cpad\u003e\\n\u003cpad\u003e\\nFigure 3: An example of the attention mechanism following long-distance dependencies in the\\nencoder self-attention in layer 5 of 6. Many of the attention heads attend to a distant dependency of\\nthe verb \u2018making\u2019, completing the phrase \u2018making...more difficult\u2019. Attentions here shown only for\\nthe word \u2018making\u2019. Different colors represent different heads. Best viewed in color.\\n13\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 49", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_3\", \"evidence_text\": \"WMT 2014 English-\\nto-German translation task, improving over the existing best results, including\\nensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task,\\nour model establishes a new single-model state-of-the-art BLEU score of 41.8 after\\ntraining for 3.5 days on eight GPUs, a small fraction of the training costs of the\\nbest models from the literature. We show that the Transformer generalizes well to\\nother tasks by applying it successfully to English constituency parsing bot\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "GENERALIZES_TO", "title": "GENERALIZES_TO\nEvidence records: 1", "to": "English constituency parsing", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_6\", \"evidence_text\": \"logarithmically for ByteNet. This makes\\nit more difficult to learn dependencies between distant positions [12]. In the Transformer this is\\nreduced to a constant number of operations, albeit at the cost of reduced effective resolution due\\nto averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as\\ndescribed in section 3.2.\\nSelf-attention, sometimes called intra-attention is an attention mechanism relating different positions\\nof a single sequence in order to com\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_1\", \"evidence_text\": \" , V W V\\ni )\\nWhere the projections are parameter matrices W Q\\ni\\n\u2208Rdmodel\u00d7dk, W K\\ni\\n\u2208Rdmodel\u00d7dk, W V\\ni\\n\u2208Rdmodel\u00d7dv\\nand W O \u2208Rhdv\u00d7dmodel.\\nIn this work we employ h = 8 parallel attention layers, or heads. For each of these we use\\ndk = dv = dmodel/h = 64. Due to the reduced dimension of each head, the total computational cost\\nis similar to that of single-head attention with full dimensionality.\\n3.2.3\\nApplications of Attention in our Model\\nThe Transformer uses multi-head attention in three different \"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_2\", \"evidence_text\": \"Applications of Attention in our Model\\nThe Transformer uses multi-head attention in three different ways:\\n\u2022 In \\\"encoder-decoder attention\\\" layers, the queries come from the previous decoder layer,\\nand the memory keys and values come from the output of the encoder. This allows every\\nposition in the decoder to attend over all positions in the input sequence. This mimics the\\ntypical encoder-decoder attention mechanisms in sequence-to-sequence models such as\\n[38, 2, 9].\\n\u2022 The encoder contains self-a\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 3", "to": "Multi-Head Attention", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_1\", \"evidence_text\": \"irst is a multi-head self-attention mechanism, and the second is a simple, position-\\nwise fully connected feed-forward network. We employ a residual connection [11] around each of\\nthe two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is\\nLayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer\\nitself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding\\nlayers, produce outputs of \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Multi-head self-attention mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_1\", \"evidence_text\": \"irst is a multi-head self-attention mechanism, and the second is a simple, position-\\nwise fully connected feed-forward network. We employ a residual connection [11] around each of\\nthe two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is\\nLayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer\\nitself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding\\nlayers, produce outputs of \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Position-wise feed-forward network", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_4\", \"evidence_text\": \" the decoder allow each position in the decoder to attend to\\nall positions in the decoder up to and including that position. We need to prevent leftward\\ninformation flow in the decoder to preserve the auto-regressive property. We implement this\\ninside of scaled dot-product attention by masking out (setting to \u2212\u221e) all values in the input\\nof the softmax which correspond to illegal connections. See Figure 2.\\n3.3\\nPosition-wise Feed-Forward Networks\\nIn addition to attention sub-layers, each of the la\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Scaled Dot-Product Attention", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_2\", \"evidence_text\": \"onal encodings\\\" to the input embeddings at the\\nbottoms of the encoder and decoder stacks. The positional encodings have the same dimension dmodel\\nas the embeddings, so that the two can be summed. There are many choices of positional encodings,\\nlearned and fixed [9].\\nIn this work, we use sine and cosine functions of different frequencies:\\nPE(pos,2i) = sin(pos/100002i/dmodel)\\nPE(pos,2i+1) = cos(pos/100002i/dmodel)\\nwhere pos is the position and i is the dimension. That is, each dimension of the pos\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Positional Encoding", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_0\", \"evidence_text\": \"Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost.\\nModel\\nBLEU\\nTraining Cost (FLOPs)\\nEN-DE\\nEN-FR\\nEN-DE\\nEN-FR\\nByteNet [18]\\n23.75\\nDeep-Att + PosUnk [39]\\n39.2\\n1.0 \u00b7 1020\\nGNMT + RL [38]\\n24.6\\n39.92\\n2.3 \u00b7 1019\\n1.4 \u00b7 1020\\nConvS2S [9]\\n25.16\\n40.46\\n9.6 \u00b7 1018\\n1.5 \u00b7 1020\\nMoE [32]\\n26.03\\n40.56\\n2.0 \u00b7 1019\\n1.2 \u00b7 1020\\nDeep-Att + PosUnk Ensemble [39]\\n40.4\\n8.0 \u00b7 1020\\nGNMT + \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "ACHIEVES", "title": "ACHIEVES\nEvidence records: 1", "to": "better BLEU scores", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_0\", \"evidence_text\": \"Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost.\\nModel\\nBLEU\\nTraining Cost (FLOPs)\\nEN-DE\\nEN-FR\\nEN-DE\\nEN-FR\\nByteNet [18]\\n23.75\\nDeep-Att + PosUnk [39]\\n39.2\\n1.0 \u00b7 1020\\nGNMT + RL [38]\\n24.6\\n39.92\\n2.3 \u00b7 1019\\n1.4 \u00b7 1020\\nConvS2S [9]\\n25.16\\n40.46\\n9.6 \u00b7 1018\\n1.5 \u00b7 1020\\nMoE [32]\\n26.03\\n40.56\\n2.0 \u00b7 1019\\n1.2 \u00b7 1020\\nDeep-Att + PosUnk Ensemble [39]\\n40.4\\n8.0 \u00b7 1020\\nGNMT + \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "ON", "title": "ON\nEvidence records: 1", "to": "English-to-German and English-to-French newstest2014 tests", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_0\", \"evidence_text\": \"Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost.\\nModel\\nBLEU\\nTraining Cost (FLOPs)\\nEN-DE\\nEN-FR\\nEN-DE\\nEN-FR\\nByteNet [18]\\n23.75\\nDeep-Att + PosUnk [39]\\n39.2\\n1.0 \u00b7 1020\\nGNMT + RL [38]\\n24.6\\n39.92\\n2.3 \u00b7 1019\\n1.4 \u00b7 1020\\nConvS2S [9]\\n25.16\\n40.46\\n9.6 \u00b7 1018\\n1.5 \u00b7 1020\\nMoE [32]\\n26.03\\n40.56\\n2.0 \u00b7 1019\\n1.2 \u00b7 1020\\nDeep-Att + PosUnk Ensemble [39]\\n40.4\\n8.0 \u00b7 1020\\nGNMT + \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "AT", "title": "AT\nEvidence records: 1", "to": "a fraction of the training cost", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_4\", \"evidence_text\": \"ase model\\nsurpasses all previously published models and ensembles, at a fraction of the training cost of any of\\nthe competitive models.\\nOn the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0,\\noutperforming all of the previously published single models, at less than 1/4 the training cost of the\\nprevious state-of-the-art model. The Transformer (big) model trained for English-to-French used\\ndropout rate Pdrop = 0.1, instead of 0.3.\\nFor the base models, we us\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "dropout rate", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 9, \"chunk_id\": \"page_9_chunk_5\", \"evidence_text\": \"resents specific challenges: the output is subject to strong structural\\nconstraints and is significantly longer than the input. Furthermore, RNN sequence-to-sequence\\nmodels have not been able to attain state-of-the-art results in small-data regimes [37].\\nWe trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the\\nPenn Treebank [25], about 40K training sentences. We also trained it in a semi-supervised setting,\\nusing the larger high-confidence and BerkleyPa\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "USES", "title": "USES\nEvidence records: 1", "to": "attention mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 10, \"chunk_id\": \"page_10_chunk_2\", \"evidence_text\": \"used a beam size of 21 and \u03b1 = 0.3\\nfor both WSJ only and the semi-supervised setting.\\nOur results in Table 4 show that despite the lack of task-specific tuning our model performs sur-\\nprisingly well, yielding better results than all previously reported models with the exception of the\\nRecurrent Neural Network Grammar [8].\\nIn contrast to RNN sequence-to-sequence models [37], the Transformer outperforms the Berkeley-\\nParser [29] even when training only on the WSJ training set of 40K sentences.\\n7\\nC\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer", "label": "OUTPERFORMS", "title": "OUTPERFORMS\nEvidence records: 1", "to": "Berkeley-Parse [29]", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_4\", \"evidence_text\": \"s than i.\\n3.2\\nAttention\\nAn attention function can be described as mapping a query and a set of key-value pairs to an output,\\nwhere the query, keys, values, and output are all vectors. The output is computed as a weighted sum\\n3\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_6\", \"evidence_text\": \"les with mean 0 and variance 1. Then their dot product, q \u00b7 k = Pdk\\ni=1 qiki, has mean 0 and variance dk.\\n4\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Attention Mechanism", "label": "USES", "title": "USES\nEvidence records: 2", "to": "Transformer", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 1, \"chunk_id\": \"page_1_chunk_6\", \"evidence_text\": \" and\\nefficient inference and visualizations. Lukasz and Aidan spent countless long days designing various parts of and\\nimplementing tensor2tensor, replacing our earlier codebase, greatly improving results and massively accelerating\\nour research.\\n\u2020Work performed while at Google Brain.\\n\u2021Work performed while at Google Research.\\n31st Conference on Neural Information Processing Systems (NIPS 2017), Long Beach, CA, USA.\\narXiv:1706.03762v7 [cs.CL] 2 Aug 2023\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "tensor2tensor", "label": "REPLACES", "title": "REPLACES\nEvidence records: 1", "to": "earlier codebase", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_0\", \"evidence_text\": \"1\\nIntroduction\\nRecurrent neural networks, long short-term memory [13] and gated recurrent [7] neural networks\\nin particular, have been firmly established as state of the art approaches in sequence modeling and\\ntransduction problems such as language modeling and machine translation [35, 2, 5]. Numerous\\nefforts have since continued to push the boundaries of recurrent language models and encoder-decoder\\narchitectures [38, 24, 15].\\nRecurrent models typically factor computation along the symbol posit\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Recurrent neural networks", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_1\", \"evidence_text\": \"der\\narchitectures [38, 24, 15].\\nRecurrent models typically factor computation along the symbol positions of the input and output\\nsequences. Aligning the positions to steps in computation time, they generate a sequence of hidden\\nstates ht, as a function of the previous hidden state ht\u22121 and the input for position t. This inherently\\nsequential nature precludes parallelization within training examples, which becomes critical at longer\\nsequence lengths, as memory constraints limit batching across ex\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Recurrent models", "label": "GENERATES", "title": "GENERATES\nEvidence records: 1", "to": "sequence of hidden states ht", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_5\", \"evidence_text\": \"ion of the Extended Neural GPU\\n[16], ByteNet [18] and ConvS2S [9], all of which use convolutional neural networks as basic building\\nblock, computing hidden representations in parallel for all input and output positions. In these models,\\nthe number of operations required to relate signals from two arbitrary input or output positions grows\\nin the distance between positions, linearly for ConvS2S and logarithmically for ByteNet. This makes\\nit more difficult to learn dependencies between distant posi\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "ConvS2S", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Convolutional Neural Networks", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_5\", \"evidence_text\": \"ion of the Extended Neural GPU\\n[16], ByteNet [18] and ConvS2S [9], all of which use convolutional neural networks as basic building\\nblock, computing hidden representations in parallel for all input and output positions. In these models,\\nthe number of operations required to relate signals from two arbitrary input or output positions grows\\nin the distance between positions, linearly for ConvS2S and logarithmically for ByteNet. This makes\\nit more difficult to learn dependencies between distant posi\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "ByteNet", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Convolutional Neural Networks", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_4\", \"evidence_text\": \"rger values of dk [3]. We suspect that for large values of\\ndk, the dot products grow large in magnitude, pushing the softmax function into regions where it has\\nextremely small gradients 4. To counteract this effect, we scale the dot products by\\n1\\n\u221adk .\\n3.2.2\\nMulti-Head Attention\\nInstead of performing a single attention function with dmodel-dimensional keys, values and queries,\\nwe found it beneficial to linearly project the queries, keys and values h times with different, learned\\nlinear projectio\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Multi-Head Attention", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 2, \"chunk_id\": \"page_2_chunk_10\", \"evidence_text\": \"z1, ..., zn). Given z, the decoder then generates an output\\nsequence (y1, ..., ym) of symbols one element at a time. At each step the model is auto-regressive\\n[10], consuming the previously generated symbols as additional input when generating the next.\\n2\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "model", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 3, \"chunk_id\": \"page_3_chunk_3\", \"evidence_text\": \"loy residual connections\\naround each of the sub-layers, followed by layer normalization. We also modify the self-attention\\nsub-layer in the decoder stack to prevent positions from attending to subsequent positions. This\\nmasking, combined with fact that the output embeddings are offset by one position, ensures that the\\npredictions for position i can depend only on the known outputs at positions less than i.\\n3.2\\nAttention\\nAn attention function can be described as mapping a query and a set of key-v\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Attention", "label": "MAPPED", "title": "MAPPED\nEvidence records: 1", "to": "query and a set of key-values", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_1\", \"evidence_text\": \"Product Attention\\\" (Figure 2). The input consists of\\nqueries and keys of dimension dk, and values of dimension dv. We compute the dot products of the\\nquery with all keys, divide each by \u221adk, and apply a softmax function to obtain the weights on the\\nvalues.\\nIn practice, we compute the attention function on a set of queries simultaneously, packed together\\ninto a matrix Q. The keys and values are also packed together into matrices K and V . We compute\\nthe matrix of outputs as:\\nAttention(Q, K, V ) =\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Attention", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Matrix Operations", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_0\", \"evidence_text\": \"Scaled Dot-Product Attention\\nMulti-Head Attention\\nFigure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several\\nattention layers running in parallel.\\nof the values, where the weight assigned to each value is computed by a compatibility function of the\\nquery with the corresponding key.\\n3.2.1\\nScaled Dot-Product Attention\\nWe call our particular attention \\\"Scaled Dot-Product Attention\\\" (Figure 2). The input consists of\\nqueries and keys of dimension dk, and values of\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Scaled Dot-Product Attention", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_2\", \"evidence_text\": \"o packed together into matrices K and V . We compute\\nthe matrix of outputs as:\\nAttention(Q, K, V ) = softmax(QKT\\n\u221adk\\n)V\\n(1)\\nThe two most commonly used attention functions are additive attention [2], and dot-product (multi-\\nplicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor\\nof\\n1\\n\u221adk . Additive attention computes the compatibility function using a feed-forward network with\\na single hidden layer. While the two are similar in theoretical complexi\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "dot-product attention", "label": "IDENTICAL_TO", "title": "IDENTICAL_TO\nEvidence records: 1", "to": "our algorithm", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_2\", \"evidence_text\": \"o packed together into matrices K and V . We compute\\nthe matrix of outputs as:\\nAttention(Q, K, V ) = softmax(QKT\\n\u221adk\\n)V\\n(1)\\nThe two most commonly used attention functions are additive attention [2], and dot-product (multi-\\nplicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor\\nof\\n1\\n\u221adk . Additive attention computes the compatibility function using a feed-forward network with\\na single hidden layer. While the two are similar in theoretical complexi\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "our algorithm", "label": "HAS_SCALING_FACTOR", "title": "HAS_SCALING_FACTOR\nEvidence records: 1", "to": "1/\u221adk", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 4, \"chunk_id\": \"page_4_chunk_2\", \"evidence_text\": \"o packed together into matrices K and V . We compute\\nthe matrix of outputs as:\\nAttention(Q, K, V ) = softmax(QKT\\n\u221adk\\n)V\\n(1)\\nThe two most commonly used attention functions are additive attention [2], and dot-product (multi-\\nplicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor\\nof\\n1\\n\u221adk . Additive attention computes the compatibility function using a feed-forward network with\\na single hidden layer. While the two are similar in theoretical complexi\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "additive attention", "label": "COMPUTES_COMPATIBILITY_FUNCTION", "title": "COMPUTES_COMPATIBILITY_FUNCTION\nEvidence records: 1", "to": "using a feed-forward network with a single hidden layer", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_0\", \"evidence_text\": \"output values. These are concatenated and once again projected, resulting in the final values, as\\ndepicted in Figure 2.\\nMulti-head attention allows the model to jointly attend to information from different representation\\nsubspaces at different positions. With a single attention head, averaging inhibits this.\\nMultiHead(Q, K, V ) = Concat(head1, ..., headh)W O\\nwhere headi = Attention(QW Q\\ni , KW K\\ni , V W V\\ni )\\nWhere the projections are parameter matrices W Q\\ni\\n\u2208Rdmodel\u00d7dk, W K\\ni\\n\u2208Rdmodel\u00d7dk, W V\\n\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "MultiHead", "label": "ATTEND_TO", "title": "ATTEND_TO\nEvidence records: 1", "to": "representation subspaces at different positions", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 5, \"chunk_id\": \"page_5_chunk_5\", \"evidence_text\": \"igure 2.\\n3.3\\nPosition-wise Feed-Forward Networks\\nIn addition to attention sub-layers, each of the layers in our encoder and decoder contains a fully\\nconnected feed-forward network, which is applied to each position separately and identically. This\\nconsists of two linear transformations with a ReLU activation in between.\\nFFN(x) = max(0, xW1 + b1)W2 + b2\\n(2)\\nWhile the linear transformations are the same across different positions, they use different parameters\\nfrom layer to layer. Another way of d\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Position-wise Feed-Forward Networks", "label": "CONTAINS", "title": "CONTAINS\nEvidence records: 1", "to": "Transformer", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_0\", \"evidence_text\": \"Table 1: Maximum path lengths, per-layer complexity and minimum number of sequential operations\\nfor different layer types. n is the sequence length, d is the representation dimension, k is the kernel\\nsize of convolutions and r the size of the neighborhood in restricted self-attention.\\nLayer Type\\nComplexity per Layer\\nSequential\\nMaximum Path Length\\nOperations\\nSelf-Attention\\nO(n2 \u00b7 d)\\nO(1)\\nO(1)\\nRecurrent\\nO(n \u00b7 d2)\\nO(n)\\nO(n)\\nConvolutional\\nO(k \u00b7 n \u00b7 d2)\\nO(1)\\nO(logk(n))\\nSelf-Attention (restricted)\\nO(r\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Self-Attention", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_3\", \"evidence_text\": \"100002i/dmodel)\\nwhere pos is the position and i is the dimension. That is, each dimension of the positional encoding\\ncorresponds to a sinusoid. The wavelengths form a geometric progression from 2\u03c0 to 10000 \u00b7 2\u03c0. We\\nchose this function because we hypothesized it would allow the model to easily learn to attend by\\nrelative positions, since for any fixed offset k, PEpos+k can be represented as a linear function of\\nPEpos.\\nWe also experimented with using learned positional embeddings [9] instead, and \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Positional Encoding", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Sinusoid", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_5\", \"evidence_text\": \"self-attention layers to the recurrent and convolu-\\ntional layers commonly used for mapping one variable-length sequence of symbol representations\\n(x1, ..., xn) to another sequence of equal length (z1, ..., zn), with xi, zi \u2208Rd, such as a hidden\\nlayer in a typical sequence transduction encoder or decoder. Motivating our use of self-attention we\\nconsider three desiderata.\\nOne is the total computational complexity per layer. Another is the amount of computation that can\\nbe parallelized, as measure\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "self-attention layers", "label": "USE", "title": "USE\nEvidence records: 1", "to": "recurrent and convolutional layers", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 6, \"chunk_id\": \"page_6_chunk_7\", \"evidence_text\": \"th of the paths forward and backward signals have to\\ntraverse in the network. The shorter these paths between any combination of positions in the input\\nand output sequences, the easier it is to learn long-range dependencies [12]. Hence we also compare\\nthe maximum path length between any two input and output positions in networks composed of the\\ndifferent layer types.\\nAs noted in Table 1, a self-attention layer connects all positions with a constant number of sequentially\\nexecuted operations, whe\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "self-attention layer", "label": "CONNECTS", "title": "CONNECTS\nEvidence records: 1", "to": "all positions", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_2\", \"evidence_text\": \"n the case of dilated convolutions [18], increasing the length of the longest paths\\nbetween any two positions in the network. Convolutional layers are generally more expensive than\\nrecurrent layers, by a factor of k. Separable convolutions [6], however, decrease the complexity\\nconsiderably, to O(k \u00b7 n \u00b7 d + n \u00b7 d2). Even with k = n, however, the complexity of a separable\\nconvolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer,\\nthe approach we take in\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "separable convolutions", "label": "DECREASE", "title": "DECREASE\nEvidence records: 1", "to": "complexity", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_2\", \"evidence_text\": \"n the case of dilated convolutions [18], increasing the length of the longest paths\\nbetween any two positions in the network. Convolutional layers are generally more expensive than\\nrecurrent layers, by a factor of k. Separable convolutions [6], however, decrease the complexity\\nconsiderably, to O(k \u00b7 n \u00b7 d + n \u00b7 d2). Even with k = n, however, the complexity of a separable\\nconvolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer,\\nthe approach we take in\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "separable convolutions", "label": "EQUAL_TO", "title": "EQUAL_TO\nEvidence records: 1", "to": "self-attention layer + point-wise feed-forward layer", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_4\", \"evidence_text\": \"ated to the syntactic\\nand semantic structure of the sentences.\\n5\\nTraining\\nThis section describes the training regime for our models.\\n5.1\\nTraining Data and Batching\\nWe trained on the standard WMT 2014 English-German dataset consisting of about 4.5 million\\nsentence pairs. Sentences were encoded using byte-pair encoding [3], which has a shared source-\\ntarget vocabulary of about 37000 tokens. For English-French, we used the significantly larger WMT\\n2014 English-French dataset consisting of 36M sente\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "byte-pair encoding", "label": "USES", "title": "USES\nEvidence records: 1", "to": "sentence pairs", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 7, \"chunk_id\": \"page_7_chunk_6\", \"evidence_text\": \"els on one machine with 8 NVIDIA P100 GPUs. For our base models using\\nthe hyperparameters described throughout the paper, each training step took about 0.4 seconds. We\\ntrained the base models for a total of 100,000 steps or 12 hours. For our big models,(described on the\\nbottom line of table 3), step time was 1.0 seconds. The big models were trained for 300,000 steps\\n(3.5 days).\\n5.3\\nOptimizer\\nWe used the Adam optimizer [20] with \u03b21 = 0.9, \u03b22 = 0.98 and \u03f5 = 10\u22129. We varied the learning\\nrate over t\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Adam optimizer", "label": "USED_BY", "title": "USED_BY\nEvidence records: 1", "to": "Optimization", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_3\", \"evidence_text\": \"Machine Translation\\nOn the WMT 2014 English-to-German translation task, the big transformer model (Transformer (big)\\nin Table 2) outperforms the best previously reported models (including ensembles) by more than 2.0\\nBLEU, establishing a new state-of-the-art BLEU score of 28.4. The configuration of this model is\\nlisted in the bottom line of Table 3. Training took 3.5 days on 8 P100 GPUs. Even our base model\\nsurpasses all previously published models and ensembles, at a fraction of the training cos\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Transformer (big)", "label": "USES", "title": "USES\nEvidence records: 1", "to": "Attention Mechanism", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 8, \"chunk_id\": \"page_8_chunk_6\", \"evidence_text\": \"e development set. We set the maximum output length during\\ninference to input length + 50, but terminate early when possible [38].\\nTable 2 summarizes our results and compares our translation quality and training costs to other model\\narchitectures from the literature. We estimate the number of floating point operations used to train a\\nmodel by multiplying the training time, the number of GPUs used, and an estimate of the sustained\\nsingle-precision floating-point capacity of each GPU 5.\\n6.2\\nModel \"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Model", "label": "USES", "title": "USES\nEvidence records: 1", "to": "floating point operations", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 14, \"chunk_id\": \"page_14_chunk_0\", \"evidence_text\": \"The\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 15, \"chunk_id\": \"page_15_chunk_0\", \"evidence_text\": \"The\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Law", "label": "USES", "title": "USES\nEvidence records: 2", "to": "Application", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 14, \"chunk_id\": \"page_14_chunk_0\", \"evidence_text\": \"The\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\"}, {\"source\": \"attention is you need.pdf\", \"page_number\": 15, \"chunk_id\": \"page_15_chunk_0\", \"evidence_text\": \"The\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nThe\\nLaw\\nwill\\nnever\\nbe\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "Application", "label": "HAS_PROPERTY", "title": "HAS_PROPERTY\nEvidence records: 2", "to": "Justness", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 15, \"chunk_id\": \"page_15_chunk_1\", \"evidence_text\": \"be\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nFigure 5: Many of the attention heads exhibit behaviour that seems related to the structure of the\\nsentence. We give two such examples above, from two different heads from the encoder self-attention\\nat layer 5 of 6. The heads clearly learned to perform different tasks.\\n15\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "attention heads", "label": "EXHIBIT", "title": "EXHIBIT\nEvidence records: 1", "to": "structure of the sentence", "width": 2}, {"arrows": "to", "color": {"color": "#94A3B8", "highlight": "#F59E0B"}, "evidence_json": "[{\"source\": \"attention is you need.pdf\", \"page_number\": 15, \"chunk_id\": \"page_15_chunk_1\", \"evidence_text\": \"be\\nperfect\\n,\\nbut\\nits\\napplication\\nshould\\nbe\\njust\\n-\\nthis\\nis\\nwhat\\nwe\\nare\\nmissing\\n,\\nin\\nmy\\nopinion\\n.\\n\u003cEOS\u003e\\n\u003cpad\u003e\\nFigure 5: Many of the attention heads exhibit behaviour that seems related to the structure of the\\nsentence. We give two such examples above, from two different heads from the encoder self-attention\\nat layer 5 of 6. The heads clearly learned to perform different tasks.\\n15\"}]", "font": {"color": "#E2E8F0", "size": 13, "strokeColor": "#101827", "strokeWidth": 3}, "from": "encoder self-attention", "label": "AT_LAYER", "title": "AT_LAYER\nEvidence records: 1", "to": "5 of 6", "width": 2}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.25,
+            "damping": 0.12,
+            "gravitationalConstant": -5000,
+            "springConstant": 0.04,
+            "springLength": 220
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101827;
+            color: #F8FAFC;
+        }
+
+        #toolbar {
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+            background: #172338;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #searchBox {
+            width: 260px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #64748B;
+            background: #0F172A;
+            color: white;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: 0;
+            border-radius: 6px;
+            background: #2563EB;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1D4ED8;
+        }
+
+        #status {
+            color: #CBD5E1;
+            font-size: 13px;
+        }
+
+        #details {
+            padding: 18px;
+            background: #172338;
+            border-top: 1px solid #334155;
+            min-height: 150px;
+        }
+
+        #details h2 {
+            color: #93C5FD;
+            margin-top: 0;
+        }
+
+        .evidence-card {
+            background: #0F172A;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .evidence-card h3 {
+            color: #FBBF24;
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        .evidence-meta {
+            color: #93C5FD;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .evidence-text {
+            color: #E2E8F0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .empty-message {
+            color: #CBD5E1;
+        }
+
+        #mynetwork {
+            background: #101827;
+        }
+    </style>
+
+    <div id="toolbar">
+        <input
+            id="searchBox"
+            type="text"
+            placeholder="Search entity, e.g. Transformer"
+        />
+
+        <button onclick="searchEntity()">Search</button>
+        <button onclick="resetGraph()">Reset Graph</button>
+
+        <span id="status">
+            Select a node or relationship.
+        </span>
+    </div>
+
+    <div id="details">
+        <h2>Evidence Inspector</h2>
+        <p class="empty-message">
+            Click a relationship edge to inspect its supporting
+            document passages.
+        </p>
+    </div>
+
+    <script>
+
+        // Safely display text in the evidence panel
+        function addText(parent, tag, text, className) {
+
+            const element = document.createElement(tag);
+
+            element.textContent = text;
+
+            if (className) {
+                element.className = className;
+            }
+
+            parent.appendChild(element);
+
+            return element;
+        }
+
+
+        // Display an entity
+        function showEntity(nodeId) {
+
+            const node = nodes.get(nodeId);
+
+            const connected = network.getConnectedNodes(nodeId);
+
+            const panel = document.getElementById("details");
+
+            panel.replaceChildren();
+
+            addText(
+                panel,
+                "h2",
+                "Entity: " + node.label
+            );
+
+            addText(
+                panel,
+                "p",
+                "Number of connected entities: " + connected.length
+            );
+
+            addText(
+                panel,
+                "h3",
+                "Connected entities"
+            );
+
+            if (connected.length === 0) {
+
+                addText(
+                    panel,
+                    "p",
+                    "No connected entities found.",
+                    "empty-message"
+                );
+
+            } else {
+
+                connected.forEach(id => {
+
+                    const connectedNode = nodes.get(id);
+
+                    addText(
+                        panel,
+                        "p",
+                        connectedNode.label
+                    );
+
+                });
+
+            }
+        }
+
+
+        // Display all evidence for a selected relationship
+        function showRelationship(edge) {
+
+            const panel = document.getElementById("details");
+
+            panel.replaceChildren();
+
+            const subject = nodes.get(edge.from);
+            const object = nodes.get(edge.to);
+
+            addText(
+                panel,
+                "h2",
+                "Relationship: " + edge.label
+            );
+
+            addText(
+                panel,
+                "p",
+                "From: " + subject.label
+            );
+
+            addText(
+                panel,
+                "p",
+                "To: " + object.label
+            );
+
+            let evidence = [];
+
+            try {
+
+                evidence = JSON.parse(
+                    edge.evidence_json || "[]"
+                );
+
+            } catch (error) {
+
+                addText(
+                    panel,
+                    "p",
+                    "Could not read evidence data.",
+                    "empty-message"
+                );
+
+                return;
+            }
+
+            addText(
+                panel,
+                "h3",
+                "Supporting evidence: " + evidence.length
+            );
+
+            if (evidence.length === 0) {
+
+                addText(
+                    panel,
+                    "p",
+                    "No evidence records are attached to this relationship.",
+                    "empty-message"
+                );
+
+                return;
+            }
+
+            evidence.forEach((item, index) => {
+
+                const card = document.createElement("div");
+
+                card.className = "evidence-card";
+
+                addText(
+                    card,
+                    "h3",
+                    "Evidence " + (index + 1)
+                );
+
+                addText(
+                    card,
+                    "div",
+                    "Source: " + (item.source || "Unknown") +
+                    " | Page: " + (item.page_number ?? "Unknown") +
+                    " | Chunk: " + (item.chunk_id || "Unknown"),
+                    "evidence-meta"
+                );
+
+                addText(
+                    card,
+                    "div",
+                    item.evidence_text || "No passage text available.",
+                    "evidence-text"
+                );
+
+                panel.appendChild(card);
+
+            });
+        }
+
+
+        // Search for an entity
+        function searchEntity() {
+
+            const query = document
+                .getElementById("searchBox")
+                .value.trim()
+                .toLowerCase();
+
+            if (!query) {
+                alert("Enter an entity name first.");
+                return;
+            }
+
+            const matches = nodes.get().filter(node =>
+                String(node.label || node.id)
+                    .toLowerCase()
+                    .includes(query)
+            );
+
+            if (matches.length === 0) {
+                alert("No matching entity found.");
+                return;
+            }
+
+            const match = matches[0];
+
+            network.selectNodes([match.id]);
+
+            network.focus(match.id, {
+                scale: 1.2,
+                animation: true
+            });
+
+            highlightNeighborhood(match.id);
+
+            showEntity(match.id);
+
+            document.getElementById("status").innerText =
+                "Found: " + match.label;
+        }
+
+
+        // Highlight selected entity and its direct neighbors
+        function highlightNeighborhood(nodeId) {
+
+            const connected = network.getConnectedNodes(nodeId);
+
+            const visibleIds = new Set([
+                nodeId,
+                ...connected
+            ]);
+
+            nodes.get().forEach(node => {
+
+                const active = visibleIds.has(node.id);
+
+                nodes.update({
+                    id: node.id,
+                    color: {
+                        background: active ? "#F59E0B" : "#334155",
+                        border: active ? "#FDE68A" : "#475569"
+                    }
+                });
+
+            });
+
+            edges.get().forEach(edge => {
+
+                const active =
+                    visibleIds.has(edge.from) &&
+                    visibleIds.has(edge.to) &&
+                    (edge.from === nodeId || edge.to === nodeId);
+
+                edges.update({
+                    id: edge.id,
+                    color: {
+                        color: active ? "#F59E0B" : "#334155",
+                        opacity: active ? 1 : 0.2
+                    },
+                    width: active ? 3 : 1
+                });
+
+            });
+        }
+
+
+        // Restore original graph colors
+        function resetGraph() {
+
+            nodes.get().forEach(node => {
+
+                nodes.update({
+                    id: node.id,
+                    color: {
+                        background: "#3B82F6",
+                        border: "#BFDBFE"
+                    }
+                });
+
+            });
+
+            edges.get().forEach(edge => {
+
+                edges.update({
+                    id: edge.id,
+                    color: {
+                        color: "#94A3B8",
+                        opacity: 1
+                    },
+                    width: 2
+                });
+
+            });
+
+            network.unselectAll();
+
+            document.getElementById("status").innerText =
+                "Showing complete graph.";
+
+            const panel = document.getElementById("details");
+
+            panel.replaceChildren();
+
+            addText(
+                panel,
+                "h2",
+                "Evidence Inspector"
+            );
+
+            addText(
+                panel,
+                "p",
+                "Select a relationship to inspect its supporting passages."
+            );
+        }
+
+
+        // Node click
+        network.on("selectNode", function(params) {
+
+            if (!params.nodes.length) return;
+
+            const nodeId = params.nodes[0];
+
+            highlightNeighborhood(nodeId);
+
+            showEntity(nodeId);
+
+            document.getElementById("status").innerText =
+                "Selected entity: " + nodes.get(nodeId).label;
+
+        });
+
+
+        // Relationship click
+        network.on("selectEdge", function(params) {
+
+            if (!params.edges.length) return;
+
+            const edge = edges.get(params.edges[0]);
+
+            showRelationship(edge);
+
+            document.getElementById("status").innerText =
+                "Selected relationship: " + edge.label;
+
+        });
+
+
+        // Search using Enter key
+        document.getElementById("searchBox")
+            .addEventListener("keydown", function(event) {
+
+                if (event.key === "Enter") {
+                    searchEntity();
+                }
+
+            });
+
+    </script>
+    
+</body>
+</html>
