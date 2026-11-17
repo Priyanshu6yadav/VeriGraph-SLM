@@ -13,29 +13,34 @@ def create_embedding_model():
     )
     return embeddings
 
+
 def create_vector_store(chunks: list):
+
+    print("\n--- VECTOR STORE DEBUGGING ---")
+    print("Input chunks:", len(chunks))
     embeddings = create_embedding_model()
-
     documents = []
-
     for chunk in chunks:
         document = Document(
-            page_content=chunk['text'],
-
-            metadata = {
-                "chunk_id": chunk['chunk_id'],
-                "page_number": chunk['page_number']
+            page_content=chunk["text"],
+            metadata={
+                "chunk_id": chunk["chunk_id"],
+                "page_number": chunk["page_number"],
+                "source": chunk.get("source", "Unknown")
             }
         )
         documents.append(document)
+    print("LangChain documents:", len(documents))
+    # Create FAISS index
+    vector_store = FAISS.from_documents(
+        documents=documents,
+        embedding=embeddings,
+        normalize_L2=True
+    )
+    print("FAISS vectors:", vector_store.index.ntotal)
+    print("--- END DEBUGGING ---\n")
+    return vector_store
 
-
-        vector_store = FAISS.from_documents(
-            documents=documents,
-            embedding = embeddings,
-            normalize_L2 = True
-        )
-        return vector_store
 
 def save_vector_store(vector_store):
     save_path = "data/processed/faiss_index"

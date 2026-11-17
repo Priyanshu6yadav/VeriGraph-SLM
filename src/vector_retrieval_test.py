@@ -4,7 +4,6 @@ from vector_store import (
     create_vector_store,
     save_vector_store
 )
-
 from vector_retriever import retrieve_chunks
 
 
@@ -20,6 +19,15 @@ print("Total chunks:", len(chunks))
 vector_store = create_vector_store(chunks)
 
 print("FAISS index created successfully!")
+
+print(
+    "FINAL INDEX COUNT:",
+    vector_store.index.ntotal
+)
+
+assert vector_store.index.ntotal == len(chunks), (
+    "FAISS index count does not match chunk count!"
+)
 
 
 # Step 3: Save vector store
@@ -50,3 +58,6 @@ for result in results:
     print("Distance:", round(result["distance"], 4))
 
     print("Content:", result["text"])
+    print(
+    "Total vectors in FAISS:",
+    vector_store.index.ntotal)
