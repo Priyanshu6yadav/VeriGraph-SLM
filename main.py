@@ -43,7 +43,7 @@ from verifier import check_graph_consistency
 # ----------------------------------------------------------------------
 # 1. Ingestion Pipeline: PDF -> Vector Index + Knowledge Graph
 # ----------------------------------------------------------------------
-def ingest_document(pdf_path: str, max_chunks: int = None):
+def ingest_document(pdf_path: str, max_chunks: int = None, reset_graph: bool = True):
     """
     Automates the full ingestion process for a PDF:
     - Step 1: Extracts text from PDF pages
@@ -96,13 +96,17 @@ def ingest_document(pdf_path: str, max_chunks: int = None):
     chunks_to_process = all_chunks[:max_chunks] if max_chunks else all_chunks
     print(f"  -> Processing {len(chunks_to_process)} chunks for graph extraction...")
 
-    # Load existing graph if present, otherwise create new
-    try:
-        graph = load_graph()
-        print("  -> Loaded existing graph to append new knowledge.")
-    except Exception:
+    # Load existing graph or start fresh
+    if reset_graph:
         graph = create_graph()
-        print("  -> Initialized a new Knowledge Graph.")
+        print("  -> Initialized fresh Knowledge Graph for new document.")
+    else:
+        try:
+            graph = load_graph()
+            print("  -> Loaded existing graph to append new knowledge.")
+        except Exception:
+            graph = create_graph()
+            print("  -> Initialized a new Knowledge Graph.")
 
     all_triples = []
     for i, chunk in enumerate(chunks_to_process, start=1):

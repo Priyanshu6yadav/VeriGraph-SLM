@@ -133,7 +133,8 @@ with st.sidebar:
     # Ingestion Form
     st.subheader("📂 Ingest New PDF")
     uploaded_file = st.file_uploader("Upload a document", type=["pdf"])
-    max_c = st.slider("Max chunks for graph extraction", 2, 50, 10, help="Limit chunks for faster processing")
+    max_c = st.slider("Max chunks for graph extraction", 2, 50, 15, help="Limit chunks for faster processing")
+    reset_graph_choice = st.checkbox("Build fresh graph for this PDF (replaces previous graph)", value=True)
 
     if uploaded_file is not None:
         if st.button("🚀 Ingest Document", use_container_width=True):
@@ -143,9 +144,10 @@ with st.sidebar:
                 f.write(uploaded_file.getbuffer())
 
             with st.spinner("Processing PDF, embedding vectors, and extracting graph..."):
-                ingest_document(str(save_path), max_chunks=max_c)
+                ingest_document(str(save_path), max_chunks=max_c, reset_graph=reset_graph_choice)
                 st.cache_resource.clear()
-                st.success("Ingestion complete! Please reload the page.")
+                st.success("Ingestion complete! Knowledge graph updated.")
+                st.rerun()
 
 
 # ----------------------------------------------------------------------
@@ -175,11 +177,18 @@ with tab_qa:
     st.markdown("Combines **vector chunks** and **relational triples** with **Z3 mathematical verification**.")
 
     col1, col2 = st.columns([3, 1])
+    sample_nodes = list(graph.nodes()) if graph else []
+    default_q = f"What is {sample_nodes[0]}?" if sample_nodes else "What does the Transformer architecture use?"
+
+    if "current_query" not in st.session_state:
+        st.session_state["current_query"] = default_q
+
     with col1:
         query_input = st.text_input(
             "Enter your question:",
-            value="What does the Transformer architecture use and eliminate?",
-            placeholder="e.g. How does Multi-Head Attention work?"
+            value=st.session_state["current_query"],
+            placeholder="Type your question here, e.g. What is a variable?",
+            key="user_query_input"
         )
     with col2:
         top_k = st.number_input("Top Evidence Chunks", min_value=1, max_value=10, value=4)
@@ -187,15 +196,30 @@ with tab_qa:
     # Sample query chips
     st.markdown("**Quick sample questions:**")
     c1, c2, c3 = st.columns(3)
-    if c1.button("🔍 What does Transformer use?"):
-        query_input = "What does the Transformer architecture use?"
-    if c2.button("🔍 Explain Multi-Head Attention"):
-        query_input = "What is Multi-Head Attention and how does it work?"
-    if c3.button("🔍 Why eliminate recurrence?"):
-        query_input = "Why did the authors eliminate recurrence in Transformer?"
+    sq1 = f"What is {sample_nodes[0]}?" if sample_nodes else "What does Transformer use?"
+    sq2 = f"How does {sample_nodes[1] if len(sample_nodes)>1 else 'it'} work?" if sample_nodes else "Explain Multi-Head Attention"
+    sq3 = f"What is connected to {sample_nodes[2] if len(sample_nodes)>2 else 'data'}?" if sample_nodes else "Why eliminate recurrence?"
+
+    if c1.button(f"🔍 {sq1[:35]}"):
+        st.session_state["current_query"] = sq1
+        st.rerun()
+    if c2.button(f"🔍 {sq2[:35]}"):
+        st.session_state["current_query"] = sq2
+        st.rerun()
+    if c3.button(f"🔍 {sq3[:35]}"):
+        st.session_state["current_query"] = sq3
+        st.rerun()
 
     if st.button("✨ Ask VeriGraph-SLM", type="primary", use_container_width=True):
-        if vector_store is None or graph is None:
+        if not query_input or not query_input.strip():
+            st.warning(
+                "🚀 **Whoa there, adventurous mind!** 🌟\n\n"
+                "You just asked the Oracle of Truth... **pure silence**! 🤫💭\n\n"
+                "Our SLM and Z3 Verifier are super excited, primed with coffee ☕, and ready to roll! "
+                "Drop your burning question in the box above (or tap one of the quick chips) "
+                "so we can uncover some grounded facts together! 🧠✨🎉"
+            )
+        elif vector_store is None or graph is None:
             st.error("Vector Store or Knowledge Graph is not loaded. Please ingest a PDF first.")
         else:
             with st.spinner("Retrieving hybrid evidence & generating verified answer..."):
@@ -366,13 +390,58 @@ with tab_verifier:
         st.markdown("#### 2. Test a Custom Claim with Z3")
         st.caption("Enter any claim to test whether Z3 evaluates it as VERIFIED, CONTRADICTION, or UNVERIFIED.")
 
+        graph_edges = list(graph.edges(data=True)) if graph else []
+        if graph_edges:
+            default_subj = graph_edges[0][0]
+            default_pred = graph_edges[0][2].get("relation", "USES")
+            default_obj = graph_edges[0][1]
+        else:
+            default_subj = "Transformer"
+            default_pred = "USES"
+            default_obj = "Attention Mechanism"
+
+        if "claim_subj" not in st.session_state:
+            st.session_state["claim_subj"] = str(default_subj)
+        if "claim_pred" not in st.session_state:
+            st.session_state["claim_pred"] = str(default_pred)
+        if "claim_obj" not in st.session_state:
+            st.session_state["claim_obj"] = str(default_obj)
+
+        if graph_edges:
+            st.markdown("**Quick test presets from your graph:**")
+            qc1, qc2, qc3 = st.columns(3)
+            if qc1.button("✅ Test Real Fact (VERIFIED)"):
+                st.session_state["claim_subj"] = str(graph_edges[0][0])
+                st.session_state["claim_pred"] = str(graph_edges[0][2].get("relation", "USES"))
+                st.session_state["claim_obj"] = str(graph_edges[0][1])
+                st.rerun()
+            if qc2.button("❌ Test Contradiction (CONTRADICTION)"):
+                st.session_state["claim_subj"] = str(graph_edges[0][0])
+                actual_rel = graph_edges[0][2].get("relation", "USES")
+                from verifier import OPPOSING_PREDICATES
+                opp_list = OPPOSING_PREDICATES.get(actual_rel, ["ELIMINATES"])
+                st.session_state["claim_pred"] = opp_list[0] if opp_list else "ELIMINATES"
+                st.session_state["claim_obj"] = str(graph_edges[0][1])
+                st.rerun()
+            if qc3.button("❓ Test Unknown Claim (UNVERIFIED)"):
+                st.session_state["claim_subj"] = str(graph_edges[0][0])
+                st.session_state["claim_pred"] = "USES"
+                st.session_state["claim_obj"] = "Quantum Teleportation"
+                st.rerun()
+
+        pred_options = ["USES", "CONTAINS", "STORES", "REQUIRES", "ELIMINATES", "REPLACES", "DEFINED_AS", "HAS", "SUPPORTS", "GENERALIZES_TO"]
+        curr_pred = st.session_state.get("claim_pred", default_pred)
+        if curr_pred not in pred_options:
+            pred_options.insert(0, curr_pred)
+
         vc1, vc2, vc3 = st.columns(3)
         with vc1:
-            test_subj = st.text_input("Subject Entity", value="tensor2tensor")
+            test_subj = st.text_input("Subject Entity", value=st.session_state.get("claim_subj", default_subj))
         with vc2:
-            test_pred = st.selectbox("Relation Predicate", ["USES", "REQUIRES", "ELIMINATES", "REPLACES", "CONTAINS", "GENERALIZES_TO"])
+            pred_idx = pred_options.index(curr_pred) if curr_pred in pred_options else 0
+            test_pred = st.selectbox("Relation Predicate", pred_options, index=pred_idx)
         with vc3:
-            test_obj = st.text_input("Object Entity", value="earlier codebase")
+            test_obj = st.text_input("Object Entity", value=st.session_state.get("claim_obj", default_obj))
 
         if st.button("⚡ Test Claim with Z3"):
             res = verify_triple_with_z3(test_subj, test_pred, test_obj, graph)

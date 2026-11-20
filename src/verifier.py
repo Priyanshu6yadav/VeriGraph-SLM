@@ -11,6 +11,7 @@ Concept for B.Tech Students:
 """
 
 import z3
+import re
 from graph_storage import load_graph
 
 
@@ -21,12 +22,36 @@ from graph_storage import load_graph
 # but the graph asserts entity A "ELIMINATES" or "REMOVES" entity B,
 # these two predicates are logically incompatible.
 OPPOSING_PREDICATES = {
-    "USES": ["ELIMINATES", "REPLACES", "REMOVES", "AVOIDS"],
-    "REQUIRES": ["ELIMINATES", "REPLACES", "REMOVES", "AVOIDS"],
-    "CONTAINS": ["EXCLUDES", "LACKS"],
-    "ELIMINATES": ["USES", "REQUIRES", "CONTAINS", "DEPENDS_ON"],
-    "REPLACES": ["USES", "REQUIRES", "DEPENDS_ON"],
+    "USES": ["ELIMINATES", "REPLACES", "REMOVES", "AVOIDS", "DISPENSES_WITH", "PROHIBITS", "FORBIDS"],
+    "REQUIRES": ["ELIMINATES", "REPLACES", "REMOVES", "AVOIDS", "DISPENSES_WITH", "EXCLUDES"],
+    "CONTAINS": ["EXCLUDES", "LACKS", "ELIMINATES", "REMOVES"],
+    "STORES": ["ELIMINATES", "REMOVES", "DISCARDS", "EXCLUDES", "DELETES"],
+    "SUPPORTS": ["OPPOSES", "PREVENTS", "PROHIBITS", "ELIMINATES"],
+    "ALLOWS": ["FORBIDS", "PROHIBITS", "PREVENTS", "DISALLOWS"],
+    "PRODUCES": ["DESTROYS", "ELIMINATES", "PREVENTS"],
+    "ELIMINATES": ["USES", "REQUIRES", "CONTAINS", "DEPENDS_ON", "STORES", "SUPPORTS", "ALLOWS", "PRODUCES"],
+    "REPLACES": ["USES", "REQUIRES", "DEPENDS_ON", "PRESERVES"],
+    "EXCLUDES": ["CONTAINS", "INCLUDES", "STORES", "REQUIRES"],
+    "FORBIDS": ["ALLOWS", "PERMITS", "USES", "SUPPORTS"],
+    "PROHIBITS": ["ALLOWS", "PERMITS", "USES", "SUPPORTS"],
 }
+
+
+def resolve_canonical_node(name: str, graph) -> str:
+    """Finds matching node in graph taking into account case, plural, and punctuation."""
+    name_clean = str(name).strip()
+    name_lower = name_clean.casefold()
+    node_lookup = {str(node).strip().casefold(): node for node in graph.nodes()}
+
+    if name_lower in node_lookup:
+        return node_lookup[name_lower]
+
+    singular = re.sub(r"(s|es)$", "", name_lower)
+    for n_low, n_orig in node_lookup.items():
+        if re.sub(r"(s|es)$", "", n_low) == singular:
+            return n_orig
+
+    return name_clean
 
 
 # ----------------------------------------------------------------------
@@ -37,26 +62,22 @@ def verify_triple_with_z3(subject: str, relation: str, object_: str, graph) -> d
     Uses Z3 to verify whether a given (Subject, Relation, Object) claim
     is SUPPORTED, CONTRADICTORY, or UNVERIFIED with respect to the Knowledge Graph.
     """
-    # Create case-insensitive lookup map for nodes in graph
-    node_lookup = {str(node).strip().casefold(): node for node in graph.nodes()}
-    
     # Resolve canonical node names
-    subj_canon = node_lookup.get(subject.strip().casefold(), subject.strip())
-    obj_canon = node_lookup.get(object_.strip().casefold(), object_.strip())
+    subj_canon = resolve_canonical_node(subject, graph)
+    obj_canon = resolve_canonical_node(object_, graph)
     relation_norm = relation.strip().upper()
 
-    # 1. Check if direct matching relationship exists in the graph
     has_exact_edge = False
-    if graph.has_node(subj_canon) and graph.has_node(obj_canon):
-        if graph.has_edge(subj_canon, obj_canon, key=relation_norm):
-            has_exact_edge = True
-
-    # 2. Inspect all existing relationships between this subject and object
     existing_relations = []
+
     if graph.has_node(subj_canon) and graph.has_node(obj_canon):
         edge_dict = graph.get_edge_data(subj_canon, obj_canon)
         if edge_dict:
-            existing_relations = [data.get("relation") for data in edge_dict.values()]
+            for k, data in edge_dict.items():
+                rel_val = (data.get("relation") or k or "").strip().upper()
+                existing_relations.append(rel_val)
+                if rel_val == relation_norm:
+                    has_exact_edge = True
 
     # 3. Create Z3 Solver instance
     solver = z3.Solver()

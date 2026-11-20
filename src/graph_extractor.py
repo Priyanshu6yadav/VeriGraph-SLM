@@ -1,4 +1,5 @@
 import json
+import re
 
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
@@ -12,28 +13,26 @@ llm = ChatOllama(
 
 
 # 2. Define extraction prompt
-prompt = ChatPromptTemplate.from_template("""
-You are an information extraction system.
+prompt = ChatPromptTemplate.from_template("""You are an expert knowledge graph extraction system.
+Extract factual entities and meaningful relationships from the provided document text.
 
-Extract factual entities and relationships from the
-provided document text.
+Predicates can be any clear active relationship in UPPERCASE, for example:
+USES, HAS, CONTAINS, STORES, DEFINED_AS, CONSISTS_OF, PERFORMS, OUTPUTS, SUPPORTS, REQUIRES, ELIMINATES, REPLACES.
 
 Rules:
-1. Extract only information explicitly supported by the text.
-2. Do not invent entities or relationships.
-3. Keep entity names concise and meaningful.
-4. Use short uppercase relationship names.
-5. Return only valid JSON.
-6. If no relationships are found, return an empty list.
+1. Extract relationships explicitly stated or directly described in the text.
+2. Subject and Object must be concise entities, concepts, or technical terms.
+3. Predicate must be in UPPERCASE with underscores instead of spaces (e.g. DEFINED_AS, CONTAINS, USES).
+4. Extract 1 to 5 high-quality relational triples per chunk if the text describes, defines, or connects concepts.
+5. Return ONLY a valid JSON object with a "triples" array. Do not include markdown or explanations.
 
 Required JSON format:
-
 {{
     "triples": [
         {{
-            "subject": "Transformer",
-            "predicate": "USES",
-            "object": "Attention Mechanism"
+            "subject": "ConceptA",
+            "predicate": "RELATION",
+            "object": "ConceptB"
         }}
     ]
 }}
@@ -56,11 +55,15 @@ def extract_triples(text):
 
     response_text = response.content.strip()
 
-    # Remove Markdown code fences if the model adds them
-    if response_text.startswith("```"):
-        response_text = response_text.replace("```json", "")
-        response_text = response_text.replace("```", "")
-        response_text = response_text.strip()
+    # Robust JSON extraction
+    if "```" in response_text:
+        match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", response_text)
+        if match:
+            response_text = match.group(1).strip()
+    elif "{" in response_text and "}" in response_text:
+        start = response_text.find("{")
+        end = response_text.rfind("}") + 1
+        response_text = response_text[start:end].strip()
 
     try:
         result = json.loads(response_text)

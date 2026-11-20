@@ -121,6 +121,15 @@ def ask_question(query: str, vector_store, graph, top_k: int = 5):
     2. Formats both relation triples and text passages.
     3. Invokes the SLM to produce an evidence-backed answer.
     """
+    if not query or not query.strip():
+        return {
+            "answer": "Please ask a question to retrieve evidence and verify claims!",
+            "matched_entities": [],
+            "relationships": [],
+            "verifications": [],
+            "sources": []
+        }
+
     # Step 1: Perform Hybrid Retrieval
     hybrid_results = hybrid_retrieve(
         query=query,

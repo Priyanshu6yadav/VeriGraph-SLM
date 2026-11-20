@@ -9,8 +9,8 @@ def retrieve_chunks(
     top_k: int = 5
 ):
 
-    if not query.strip():
-        raise ValueError("Query cannot be empty")
+    if not query or not query.strip():
+        return []
 
     # Qwen3-Embedding retrieval instruction
     instructed_query = (
