@@ -1,13 +1,25 @@
 [project]
 name = "verigraph-slm"
 version = "0.1.0"
-description = "Add your description here"
+description = "Hybrid GraphRAG with Local SLMs and Formal Verification"
 readme = "README.md"
 authors = [
     { name = "Priyanshu Yadav", email = "priyanshu8yadav@gmail.com" }
 ]
-requires-python = ">=3.13"
-dependencies = []
+requires-python = ">=3.11"
+dependencies = [
+    "langchain",
+    "langchain-core",
+    "langchain-community",
+    "langchain-ollama",
+    "pymupdf",
+    "faiss-cpu",
+    "numpy",
+    "networkx",
+    "pyvis",
+    "matplotlib",
+    "z3-solver",
+]
 
 [project.scripts]
 verigraph-slm = "verigraph_slm:main"

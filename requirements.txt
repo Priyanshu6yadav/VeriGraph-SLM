@@ -1,17 +1,23 @@
+# Core LangChain & Ollama integration
 langchain
-langgraph
-networkx
-numpy
-matplotlib
-Z3
-langchain-ollama 
 langchain-core
 langchain-community
-pymupdf
-pypdf
+langchain-ollama
 
-sentence-transformers
+# PDF parsing
+pymupdf
+
+# Vector store & numerical operations
 faiss-cpu
-langchain-huggingface
-faiss-cpu
+numpy
+
+# Graph operations & visualization
+networkx
 pyvis
+matplotlib
+
+# Formal verification (Z3 SMT solver)
+z3-solver
+
+# Interactive Web Dashboard
+streamlit
